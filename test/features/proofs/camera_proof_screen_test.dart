@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:growthstreak/features/auth/domain/auth_user.dart';
 import 'package:growthstreak/features/auth/presentation/auth_controller.dart';
 import 'package:growthstreak/features/auth/presentation/auth_state.dart';
 import 'package:growthstreak/features/onboarding/domain/user_profile.dart';
@@ -97,7 +96,8 @@ void main() {
       // Verify success overlay
       expect(find.text('Proof Submitted!'), findsOneWidget);
       expect(find.textContaining('Expires at 10:00 AM tomorrow'), findsOneWidget);
-      expect(find.textContaining('Friend Bob'), findsOneWidget);
+      expect(find.text('Sent for verification to Friend Bob.'), findsOneWidget);
+      expect(find.byKey(const Key('send_whatsapp_button')), findsOneWidget);
 
       // Verify Proof is in MockProofRepository
       final proofs = await mockProofRepo.watchProofsForDate('user_123', TodayTasksNotifier.todayDateString()).first;

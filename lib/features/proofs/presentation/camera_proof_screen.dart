@@ -7,6 +7,7 @@ import '../../auth/presentation/auth_controller.dart';
 import '../../auth/presentation/auth_state.dart';
 import '../../tasks/domain/habit_task.dart';
 import '../../tasks/presentation/today_tasks_notifier.dart';
+import '../domain/whatsapp_share_service.dart';
 import 'proof_notifier.dart';
 
 class CameraProofScreen extends ConsumerStatefulWidget {
@@ -258,10 +259,39 @@ class _CameraProofScreenState extends ConsumerState<CameraProofScreen> {
                             ),
                             const SizedBox(height: 24),
                             ElevatedButton.icon(
-                              key: const Key('done_button'),
+                              key: const Key('send_whatsapp_button'),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: emerald,
+                                backgroundColor: const Color(0xFF25D366),
                                 foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              icon: const Icon(Icons.share_rounded),
+                              label: Text(
+                                friend != null && friend.name.isNotEmpty
+                                    ? 'Send to ${friend.name} (WhatsApp)'
+                                    : 'Send Proof via WhatsApp',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              onPressed: () async {
+                                final proof = state.submittedProof!;
+                                await WhatsAppShareService().launchWhatsApp(
+                                  phone: friend?.phoneE164 ?? '',
+                                  friendName: friend?.name ?? 'Friend',
+                                  studentName: userProfile?.name ?? 'Student',
+                                  streak: userProfile?.currentStreak ?? 0,
+                                  date: proof.date,
+                                  proofId: proof.id,
+                                  tokenNonce: proof.tokenNonce,
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            OutlinedButton.icon(
+                              key: const Key('done_button'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white70,
+                                side: const BorderSide(color: Colors.white30),
                                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               ),

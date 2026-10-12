@@ -5,7 +5,6 @@ import 'package:growthstreak/features/auth/presentation/auth_controller.dart';
 import 'package:growthstreak/features/auth/presentation/auth_state.dart';
 import 'package:growthstreak/features/onboarding/data/mock_user_profile_repository.dart';
 import 'package:growthstreak/features/onboarding/domain/user_profile.dart';
-import 'package:growthstreak/features/onboarding/domain/user_profile_repository.dart';
 import 'package:growthstreak/features/profile/presentation/profile_screen.dart';
 
 void main() {
