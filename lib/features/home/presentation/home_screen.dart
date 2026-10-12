@@ -4,6 +4,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../onboarding/domain/user_profile.dart';
+import '../../tasks/presentation/today_tasks_notifier.dart';
+import '../../tasks/presentation/widgets/create_task_sheet.dart';
+import '../../tasks/presentation/widgets/task_tile.dart';
+import 'widgets/hero_completion_ring_card.dart';
 
 class HomeScreen extends ConsumerWidget {
   final UserProfile profile;
@@ -12,6 +16,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final todayState = ref.watch(todayTasksNotifierProvider);
     final friend = profile.accountabilityFriend;
 
     return Scaffold(
@@ -40,6 +45,31 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        key: const Key('add_task_fab'),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Add Task'),
+        onPressed: () {
+          CreateTaskSheet.show(
+            context,
+            onSave: ({
+              required String title,
+              required String category,
+              required int weight,
+              required List<int> repeatDays,
+            }) {
+              ref.read(todayTasksNotifierProvider.notifier).createTask(
+                    title: title,
+                    category: category,
+                    weight: weight,
+                    repeatDays: repeatDays,
+                  );
+            },
+          );
+        },
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -60,116 +90,71 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 28,
-                          backgroundColor: Colors.white.withValues(alpha: 0.2),
-                          backgroundImage: profile.photoUrl != null
-                              ? NetworkImage(profile.photoUrl!)
-                              : null,
-                          child: profile.photoUrl == null
-                              ? Text(
-                                  profile.name.isNotEmpty
-                                      ? profile.name[0].toUpperCase()
-                                      : 'S',
-                                  style: AppTypography.headlineMedium.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : null,
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                profile.name,
-                                style: AppTypography.headlineMedium.copyWith(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                profile.email,
-                                style: AppTypography.bodySmall.copyWith(
-                                  color: Colors.white.withValues(alpha: 0.8),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Streak badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.local_fire_department_rounded,
-                                color: AppColors.streakOrange,
-                                size: 22,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${profile.currentStreak}d',
-                                style: AppTypography.titleLarge.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Foundation Spike Success Banner
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryContainer.withValues(alpha: 0.45),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.2),
-                  ),
-                ),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle_rounded,
-                        color: AppColors.primary, size: 24),
-                    const SizedBox(width: 12),
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
+                      backgroundImage: profile.photoUrl != null
+                          ? NetworkImage(profile.photoUrl!)
+                          : null,
+                      child: profile.photoUrl == null
+                          ? Text(
+                              profile.name.isNotEmpty
+                                  ? profile.name[0].toUpperCase()
+                                  : 'S',
+                              style: AppTypography.headlineMedium.copyWith(
+                                color: Colors.white,
+                              ),
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Project Foundation Active',
-                            style: AppTypography.titleLarge.copyWith(
-                              color: AppColors.primaryDark,
+                            profile.name,
+                            style: AppTypography.headlineMedium.copyWith(
+                              color: Colors.white,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Emerald theme, Google Auth spike, and Firestore persistence established.',
+                            profile.email,
                             style: AppTypography.bodySmall.copyWith(
-                              color: AppColors.primaryDark,
+                              color: Colors.white.withValues(alpha: 0.8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Streak badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.local_fire_department_rounded,
+                            color: AppColors.streakOrange,
+                            size: 22,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${profile.currentStreak}d',
+                            style: AppTypography.titleLarge.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
@@ -178,13 +163,108 @@ class HomeScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
 
-              // Daily Targets & Settings Cards
+              // Hero Circular Ring Card
+              HeroCompletionRingCard(
+                completionPercent: todayState.completionPercent,
+                completedWeight: todayState.completedWeight,
+                totalWeight: todayState.totalWeight,
+                currentStreak: profile.currentStreak,
+              ),
+              const SizedBox(height: 24),
+
+              // Today's Tasks Section Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Today's Tasks", style: AppTypography.headlineMedium),
+                  TextButton.icon(
+                    key: const Key('add_task_header_button'),
+                    icon: const Icon(Icons.add_rounded, size: 18),
+                    label: const Text('Add Task'),
+                    onPressed: () {
+                      CreateTaskSheet.show(
+                        context,
+                        onSave: ({
+                          required String title,
+                          required String category,
+                          required int weight,
+                          required List<int> repeatDays,
+                        }) {
+                          ref.read(todayTasksNotifierProvider.notifier).createTask(
+                                title: title,
+                                category: category,
+                                weight: weight,
+                                repeatDays: repeatDays,
+                              );
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // Tasks List or Empty State
+              if (todayState.tasks.isEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.borderLight),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceMuted,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.checklist_rounded,
+                            size: 32, color: AppColors.primary),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        'No tasks scheduled for today',
+                        style: AppTypography.titleLarge,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Tap "Add Task" to create your first weighted daily habit.',
+                        style: AppTypography.bodySmall,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                )
+              else
+                ...todayState.tasks.map((task) {
+                  final isDone = todayState.isTaskCompleted(task.id);
+                  return TaskTile(
+                    key: Key('task_tile_${task.id}'),
+                    task: task,
+                    isCompleted: isDone,
+                    onToggle: (_) {
+                      ref
+                          .read(todayTasksNotifierProvider.notifier)
+                          .toggleTask(task.id);
+                    },
+                    onDelete: () {
+                      ref
+                          .read(todayTasksNotifierProvider.notifier)
+                          .deleteTask(task.id);
+                    },
+                  );
+                }),
+              const SizedBox(height: 24),
+
+              // Discipline Metrics Section
               Text('Discipline Metrics', style: AppTypography.headlineMedium),
               const SizedBox(height: 12),
 
-              // Step Goal Card
               _buildMetricCard(
                 icon: Icons.directions_walk_rounded,
                 iconColor: AppColors.primary,
@@ -197,7 +277,6 @@ class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
 
-              // Accountability Friend Card
               _buildMetricCard(
                 icon: Icons.handshake_rounded,
                 iconColor: AppColors.infoBlue,
@@ -211,7 +290,6 @@ class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
 
-              // Dues & Penalties Card
               _buildMetricCard(
                 icon: Icons.currency_rupee_rounded,
                 iconColor: profile.unresolvedPenaltiesCount > 0
@@ -225,7 +303,6 @@ class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 32),
 
-              // Sign Out Outlined Button
               OutlinedButton.icon(
                 key: const Key('sign_out_button'),
                 onPressed: () =>
@@ -233,6 +310,7 @@ class HomeScreen extends ConsumerWidget {
                 icon: const Icon(Icons.logout_rounded, size: 20),
                 label: const Text('Sign Out'),
               ),
+              const SizedBox(height: 48), // Padding for FAB
             ],
           ),
         ),

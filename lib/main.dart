@@ -10,21 +10,35 @@ import 'features/auth/presentation/auth_controller.dart';
 import 'features/onboarding/domain/user_profile_repository.dart';
 import 'features/onboarding/data/firestore_user_profile_repository.dart';
 import 'features/onboarding/data/mock_user_profile_repository.dart';
+import 'features/tasks/domain/task_repository.dart';
+import 'features/tasks/data/firestore_task_repository.dart';
+import 'features/tasks/data/mock_task_repository.dart';
+import 'features/tasks/domain/day_log_repository.dart';
+import 'features/tasks/data/firestore_day_log_repository.dart';
+import 'features/tasks/data/mock_day_log_repository.dart';
+import 'features/tasks/presentation/today_tasks_notifier.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   late final AuthRepository authRepository;
   late final UserProfileRepository userProfileRepository;
+  late final TaskRepository taskRepository;
+  late final DayLogRepository dayLogRepository;
 
   try {
     await Firebase.initializeApp();
     authRepository = FirebaseAuthRepository();
     userProfileRepository = FirestoreUserProfileRepository();
+    taskRepository = FirestoreTaskRepository();
+    dayLogRepository = FirestoreDayLogRepository();
   } catch (e) {
-    debugPrint('Firebase not initialized or credentials missing ($e). Using local dev mock fallback.');
+    debugPrint(
+        'Firebase not initialized or credentials missing ($e). Using local dev mock fallback.');
     authRepository = MockAuthRepository();
     userProfileRepository = MockUserProfileRepository();
+    taskRepository = MockTaskRepository();
+    dayLogRepository = MockDayLogRepository();
   }
 
   runApp(
@@ -32,6 +46,8 @@ Future<void> main() async {
       overrides: [
         authRepositoryProvider.overrideWithValue(authRepository),
         userProfileRepositoryProvider.overrideWithValue(userProfileRepository),
+        taskRepositoryProvider.overrideWithValue(taskRepository),
+        dayLogRepositoryProvider.overrideWithValue(dayLogRepository),
       ],
       child: const GrowthStreakApp(),
     ),
