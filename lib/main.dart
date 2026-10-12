@@ -30,6 +30,11 @@ import 'features/proofs/data/mock_proof_repository.dart';
 import 'features/proofs/data/mock_proof_storage_repository.dart';
 import 'features/proofs/presentation/proof_providers.dart';
 
+import 'features/excuses/domain/excuse_repository.dart';
+import 'features/excuses/data/firestore_excuse_repository.dart';
+import 'features/excuses/data/mock_excuse_repository.dart';
+import 'features/excuses/presentation/excuse_providers.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -40,6 +45,7 @@ Future<void> main() async {
   late final StepSensorRepository stepSensorRepository;
   late final ProofRepository proofRepository;
   late final ProofStorageRepository proofStorageRepository;
+  late final ExcuseRepository excuseRepository;
 
   try {
     await Firebase.initializeApp();
@@ -49,6 +55,7 @@ Future<void> main() async {
     dayLogRepository = FirestoreDayLogRepository();
     proofRepository = FirestoreProofRepository();
     proofStorageRepository = FirebaseStorageProofRepository();
+    excuseRepository = FirestoreExcuseRepository();
   } catch (e) {
     debugPrint(
         'Firebase not initialized or credentials missing ($e). Using local dev mock fallback.');
@@ -58,6 +65,7 @@ Future<void> main() async {
     dayLogRepository = MockDayLogRepository();
     proofRepository = MockProofRepository();
     proofStorageRepository = MockProofStorageRepository();
+    excuseRepository = MockExcuseRepository();
   }
 
   try {
@@ -77,6 +85,7 @@ Future<void> main() async {
         stepSensorRepositoryProvider.overrideWithValue(stepSensorRepository),
         proofRepositoryProvider.overrideWithValue(proofRepository),
         proofStorageRepositoryProvider.overrideWithValue(proofStorageRepository),
+        excuseRepositoryProvider.overrideWithValue(excuseRepository),
       ],
       child: const GrowthStreakApp(),
     ),

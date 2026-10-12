@@ -13,4 +13,14 @@ abstract class DayLogRepository {
     required bool isCompleted,
     required List<HabitTask> scheduledTasks,
   });
+
+  Future<DayLog> recordTaskOutcome({
+    required String uid,
+    required String date,
+    required String taskId,
+    required String status,
+    String? proofId,
+    String? excuseId,
+    List<HabitTask>? scheduledTasks,
+  });
 }

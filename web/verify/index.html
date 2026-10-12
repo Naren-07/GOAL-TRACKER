@@ -140,23 +140,51 @@
       }
     }
 
-    function renderReview(proof) {
+    function renderReview(item) {
+      if (item.isExcuse || item.note) {
+        document.getElementById('content').innerHTML = `
+          <div class="student-info">
+            <div class="avatar" style="background:#EA580C;">📝</div>
+            <div class="info-text">
+              <h3>Missed-Day Excuse Note</h3>
+              <p>Category: <strong>${item.category || 'General'}</strong></p>
+            </div>
+          </div>
+          <div style="background:#F1F5F9; border-radius:12px; padding:16px; margin-bottom:16px; font-size:15px; line-height:1.5; color:#1E293B; border-left:4px solid #EA580C;">
+            "${item.note || 'Unable to attend gym due to unforeseen reasons.'}"
+          </div>
+          <div class="actions">
+            <button class="btn-reject" onclick="declineExcuse()">Decline</button>
+            <button class="btn-approve" onclick="acceptExcuse()">Accept Excuse</button>
+          </div>
+        `;
+        return;
+      }
+
       document.getElementById('content').innerHTML = `
         <div class="student-info">
           <div class="avatar">GS</div>
           <div class="info-text">
             <h3>Today's Gym Workout Proof</h3>
-            <p>Captured at ${proof.createdAt}</p>
+            <p>Captured at ${item.createdAt}</p>
           </div>
         </div>
         <div class="photo-container">
-          ${proof.photoUrl ? `<img src="${proof.photoUrl}" alt="Gym Proof">` : `<div style="color:white;display:flex;height:100%;align-items:center;justify-content:center;">🏋️‍♂️ Gym Photo Proof</div>`}
+          ${item.photoUrl ? `<img src="${item.photoUrl}" alt="Gym Proof">` : `<div style="color:white;display:flex;height:100%;align-items:center;justify-content:center;">🏋️‍♂️ Gym Photo Proof</div>`}
         </div>
         <div class="actions">
           <button class="btn-reject" onclick="openRejectModal()">Reject</button>
           <button class="btn-approve" onclick="approveProof()">Approve Workout</button>
         </div>
       `;
+    }
+
+    async function acceptExcuse() {
+      showStatus('🤝', 'Excuse Accepted', 'You accepted this excuse. The daily task weight will be adjusted and your friend\'s streak will remain intact!');
+    }
+
+    async function declineExcuse() {
+      showStatus('❌', 'Excuse Declined', 'You declined this excuse. The missed task penalty (₹10) will be recorded.');
     }
 
     async function approveProof() {

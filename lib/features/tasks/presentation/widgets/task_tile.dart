@@ -8,6 +8,7 @@ class TaskTile extends StatelessWidget {
   final bool isCompleted;
   final ValueChanged<bool> onToggle;
   final VoidCallback? onDelete;
+  final VoidCallback? onSubmitExcuse;
 
   const TaskTile({
     super.key,
@@ -15,6 +16,7 @@ class TaskTile extends StatelessWidget {
     required this.isCompleted,
     required this.onToggle,
     this.onDelete,
+    this.onSubmitExcuse,
   });
 
   IconData _getCategoryIcon(String category) {
@@ -119,6 +121,17 @@ class TaskTile extends StatelessWidget {
               ],
             ),
           ),
+
+          if (onSubmitExcuse != null && !isCompleted)
+            TextButton(
+              key: Key('submit_reason_button_${task.id}'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                visualDensity: VisualDensity.compact,
+              ),
+              onPressed: onSubmitExcuse,
+              child: const Text('Submit Reason', style: TextStyle(fontSize: 12)),
+            ),
 
           // Delete icon button if provided
           if (onDelete != null)

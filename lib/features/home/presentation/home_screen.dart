@@ -12,6 +12,7 @@ import 'widgets/hero_completion_ring_card.dart';
 
 import '../../profile/presentation/profile_screen.dart';
 import '../../proofs/presentation/camera_proof_screen.dart';
+import '../../excuses/presentation/submit_excuse_sheet.dart';
 
 class HomeScreen extends ConsumerWidget {
   final UserProfile profile;
@@ -276,6 +277,9 @@ class HomeScreen extends ConsumerWidget {
                             .toggleTask(task.id);
                       }
                     },
+                    onSubmitExcuse: task.type == 'gym_photo'
+                        ? () => SubmitExcuseSheet.show(context, task)
+                        : null,
                     onDelete: () {
                       ref
                           .read(todayTasksNotifierProvider.notifier)

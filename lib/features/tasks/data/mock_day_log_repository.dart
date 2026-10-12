@@ -93,6 +93,57 @@ class MockDayLogRepository implements DayLogRepository {
     return updatedLog;
   }
 
+  @override
+  Future<DayLog> recordTaskOutcome({
+    required String uid,
+    required String date,
+    required String taskId,
+    required String status,
+    String? proofId,
+    String? excuseId,
+    List<HabitTask>? scheduledTasks,
+  }) async {
+    final key = _key(uid, date);
+    final existingLog = _dayLogs[key] ?? DayLog(date: date);
+
+    final outcomes = Map<String, TaskOutcome>.from(existingLog.taskOutcomes);
+    outcomes[taskId] = TaskOutcome(
+      status: status,
+      proofId: proofId ?? existingLog.taskOutcomes[taskId]?.proofId,
+      excuseId: excuseId ?? existingLog.taskOutcomes[taskId]?.excuseId,
+      penaltyId: existingLog.taskOutcomes[taskId]?.penaltyId,
+    );
+
+    final tasks = scheduledTasks ?? [];
+    int totalWeight = 0;
+    int completedWeight = 0;
+
+    for (final task in tasks) {
+      final outcome = outcomes[task.id] ?? const TaskOutcome(status: 'pending');
+      if (!outcome.isExcused) {
+        totalWeight += task.weight;
+      }
+      if (outcome.isCompleted) {
+        completedWeight += task.weight;
+      }
+    }
+
+    final completionPercent = totalWeight == 0
+        ? existingLog.completionPercent
+        : ((completedWeight / totalWeight) * 100).round().clamp(0, 100);
+
+    final updatedLog = existingLog.copyWith(
+      taskOutcomes: outcomes,
+      totalWeight: totalWeight > 0 ? totalWeight : existingLog.totalWeight,
+      completedWeight:
+          completedWeight > 0 ? completedWeight : existingLog.completedWeight,
+      completionPercent: completionPercent,
+    );
+
+    await saveDayLog(uid, updatedLog);
+    return updatedLog;
+  }
+
   void dispose() {
     _streamController.close();
   }
