@@ -22,6 +22,14 @@ import 'features/steps/data/hardware_step_sensor_repository.dart';
 import 'features/steps/data/mock_step_sensor_repository.dart';
 import 'features/steps/presentation/step_tracker_notifier.dart';
 
+import 'features/proofs/domain/proof_repository.dart';
+import 'features/proofs/domain/proof_storage_repository.dart';
+import 'features/proofs/data/firestore_proof_repository.dart';
+import 'features/proofs/data/firebase_storage_proof_repository.dart';
+import 'features/proofs/data/mock_proof_repository.dart';
+import 'features/proofs/data/mock_proof_storage_repository.dart';
+import 'features/proofs/presentation/proof_providers.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -30,6 +38,8 @@ Future<void> main() async {
   late final TaskRepository taskRepository;
   late final DayLogRepository dayLogRepository;
   late final StepSensorRepository stepSensorRepository;
+  late final ProofRepository proofRepository;
+  late final ProofStorageRepository proofStorageRepository;
 
   try {
     await Firebase.initializeApp();
@@ -37,6 +47,8 @@ Future<void> main() async {
     userProfileRepository = FirestoreUserProfileRepository();
     taskRepository = FirestoreTaskRepository();
     dayLogRepository = FirestoreDayLogRepository();
+    proofRepository = FirestoreProofRepository();
+    proofStorageRepository = FirebaseStorageProofRepository();
   } catch (e) {
     debugPrint(
         'Firebase not initialized or credentials missing ($e). Using local dev mock fallback.');
@@ -44,6 +56,8 @@ Future<void> main() async {
     userProfileRepository = MockUserProfileRepository();
     taskRepository = MockTaskRepository();
     dayLogRepository = MockDayLogRepository();
+    proofRepository = MockProofRepository();
+    proofStorageRepository = MockProofStorageRepository();
   }
 
   try {
@@ -61,6 +75,8 @@ Future<void> main() async {
         taskRepositoryProvider.overrideWithValue(taskRepository),
         dayLogRepositoryProvider.overrideWithValue(dayLogRepository),
         stepSensorRepositoryProvider.overrideWithValue(stepSensorRepository),
+        proofRepositoryProvider.overrideWithValue(proofRepository),
+        proofStorageRepositoryProvider.overrideWithValue(proofStorageRepository),
       ],
       child: const GrowthStreakApp(),
     ),

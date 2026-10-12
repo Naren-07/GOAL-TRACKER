@@ -10,6 +10,9 @@ import '../../tasks/presentation/widgets/task_tile.dart';
 import '../../steps/presentation/widgets/step_counter_card.dart';
 import 'widgets/hero_completion_ring_card.dart';
 
+import '../../profile/presentation/profile_screen.dart';
+import '../../proofs/presentation/camera_proof_screen.dart';
+
 class HomeScreen extends ConsumerWidget {
   final UserProfile profile;
 
@@ -38,6 +41,18 @@ class HomeScreen extends ConsumerWidget {
           ],
         ),
         actions: [
+          IconButton(
+            key: const Key('profile_icon_button'),
+            tooltip: 'Accountability Profile',
+            icon: const Icon(Icons.manage_accounts_outlined, color: AppColors.textSecondary),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const ProfileScreen(),
+                ),
+              );
+            },
+          ),
           IconButton(
             key: const Key('sign_out_icon_button'),
             tooltip: 'Sign Out',
@@ -249,9 +264,17 @@ class HomeScreen extends ConsumerWidget {
                     task: task,
                     isCompleted: isDone,
                     onToggle: (_) {
-                      ref
-                          .read(todayTasksNotifierProvider.notifier)
-                          .toggleTask(task.id);
+                      if (task.type == 'gym_photo') {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => CameraProofScreen(task: task),
+                          ),
+                        );
+                      } else {
+                        ref
+                            .read(todayTasksNotifierProvider.notifier)
+                            .toggleTask(task.id);
+                      }
                     },
                     onDelete: () {
                       ref
@@ -269,16 +292,27 @@ class HomeScreen extends ConsumerWidget {
               const StepCounterCard(),
               const SizedBox(height: 12),
 
-              _buildMetricCard(
-                icon: Icons.handshake_rounded,
-                iconColor: AppColors.infoBlue,
-                title: 'Accountability Friend',
-                value: friend != null && friend.name.isNotEmpty
-                    ? friend.name
-                    : 'Not configured yet',
-                subtitle: friend != null && friend.upiVpa.isNotEmpty
-                    ? 'UPI: ${friend.upiVpa} • WhatsApp: ${friend.phoneE164}'
-                    : 'Link a friend to enable gym live photo reviews and UPI stakes.',
+              InkWell(
+                key: const Key('accountability_friend_card_button'),
+                borderRadius: BorderRadius.circular(18),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ProfileScreen(),
+                    ),
+                  );
+                },
+                child: _buildMetricCard(
+                  icon: Icons.handshake_rounded,
+                  iconColor: AppColors.infoBlue,
+                  title: 'Accountability Friend',
+                  value: friend != null && friend.name.isNotEmpty
+                      ? friend.name
+                      : 'Not configured yet',
+                  subtitle: friend != null && friend.upiVpa.isNotEmpty
+                      ? 'UPI: ${friend.upiVpa} • WhatsApp: ${friend.phoneE164} (Tap to edit)'
+                      : 'Link a friend to enable gym live photo reviews and UPI stakes (Tap to edit).',
+                ),
               ),
               const SizedBox(height: 12),
 

@@ -159,10 +159,10 @@ class TodayTasksNotifier extends Notifier<TodayTasksState> {
     );
   }
 
-  Future<void> toggleTask(String taskId) async {
+  Future<void> toggleTask(String taskId, [bool? forceCompleted]) async {
     if (_uid == null || _dayLogRepository == null) return;
     final isCurrentlyCompleted = state.isTaskCompleted(taskId);
-    final nextStatus = !isCurrentlyCompleted;
+    final nextStatus = forceCompleted ?? !isCurrentlyCompleted;
 
     // Persist to repository
     final updatedLog = await _dayLogRepository!.recordTaskToggle(

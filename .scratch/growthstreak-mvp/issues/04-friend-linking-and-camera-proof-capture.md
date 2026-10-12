@@ -4,11 +4,11 @@
 
 **Blocked by:** 02: Daily Weighted Tasks & Completion Hero Ring
 
-**Status:** ready-for-agent
+**Status:** completed
 
-- [ ] Profile screen allows entering and editing Accountability Friend details (Name, WhatsApp number with country code, and UPI VPA).
-- [ ] Tapping the Gym task opens a dedicated in-app camera viewfinder; picking from gallery or camera roll is disabled.
-- [ ] Captured photo preview shows an embedded date/time stamp watermark overlay.
-- [ ] Photo is compressed to under 350 KB and uploaded to Firebase Storage under `proofs/{uid}/{proofId}.jpg`.
-- [ ] A new `proofs/{id}` record is created in Firestore with status `pending`, a single-use token nonce, and an expiration timestamp set to 10:00 AM the following morning.
-- [ ] Perceptual hash check prevents submitting the exact same photo multiple times.
+- [x] Profile screen allows entering and editing Accountability Friend details (Name, WhatsApp number with country code, and UPI VPA).
+- [x] Tapping the Gym task opens a dedicated in-app camera viewfinder; picking from gallery or camera roll is disabled.
+- [x] Captured photo preview shows an embedded date/time stamp watermark overlay.
+- [x] Photo is compressed to under 350 KB and uploaded to Firebase Storage under `proofs/{uid}/{proofId}.jpg`.
+- [x] A new `proofs/{id}` record is created in Firestore with status `pending`, a single-use token nonce, and an expiration timestamp set to 10:00 AM the following morning.
+- [x] Perceptual hash check prevents submitting the exact same photo multiple times.
