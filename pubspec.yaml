@@ -41,6 +41,8 @@ dependencies:
   firebase_auth: ^6.7.0
   cloud_firestore: ^6.10.0
   google_sign_in: ^7.2.0
+  pedometer: ^4.0.2
+  permission_handler: ^11.4.0
 
 dev_dependencies:
   flutter_test:

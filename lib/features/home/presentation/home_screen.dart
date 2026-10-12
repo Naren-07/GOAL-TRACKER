@@ -7,6 +7,7 @@ import '../../onboarding/domain/user_profile.dart';
 import '../../tasks/presentation/today_tasks_notifier.dart';
 import '../../tasks/presentation/widgets/create_task_sheet.dart';
 import '../../tasks/presentation/widgets/task_tile.dart';
+import '../../steps/presentation/widgets/step_counter_card.dart';
 import 'widgets/hero_completion_ring_card.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -265,16 +266,7 @@ class HomeScreen extends ConsumerWidget {
               Text('Discipline Metrics', style: AppTypography.headlineMedium),
               const SizedBox(height: 12),
 
-              _buildMetricCard(
-                icon: Icons.directions_walk_rounded,
-                iconColor: AppColors.primary,
-                title: 'Daily Step Goal',
-                value: '${profile.stepGoal.toString().replaceAllMapped(
-                      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                      (Match m) => '${m[1]},',
-                    )} steps',
-                subtitle: 'Tracked automatically via on-device pedometer sensor.',
-              ),
+              const StepCounterCard(),
               const SizedBox(height: 12),
 
               _buildMetricCard(

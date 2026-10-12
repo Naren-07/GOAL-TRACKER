@@ -17,6 +17,10 @@ import 'features/tasks/domain/day_log_repository.dart';
 import 'features/tasks/data/firestore_day_log_repository.dart';
 import 'features/tasks/data/mock_day_log_repository.dart';
 import 'features/tasks/presentation/today_tasks_notifier.dart';
+import 'features/steps/domain/step_sensor_repository.dart';
+import 'features/steps/data/hardware_step_sensor_repository.dart';
+import 'features/steps/data/mock_step_sensor_repository.dart';
+import 'features/steps/presentation/step_tracker_notifier.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +29,7 @@ Future<void> main() async {
   late final UserProfileRepository userProfileRepository;
   late final TaskRepository taskRepository;
   late final DayLogRepository dayLogRepository;
+  late final StepSensorRepository stepSensorRepository;
 
   try {
     await Firebase.initializeApp();
@@ -41,6 +46,13 @@ Future<void> main() async {
     dayLogRepository = MockDayLogRepository();
   }
 
+  try {
+    stepSensorRepository = HardwareStepSensorRepository();
+  } catch (e) {
+    debugPrint('Hardware pedometer unavailable ($e). Using mock step sensor.');
+    stepSensorRepository = MockStepSensorRepository();
+  }
+
   runApp(
     ProviderScope(
       overrides: [
@@ -48,6 +60,7 @@ Future<void> main() async {
         userProfileRepositoryProvider.overrideWithValue(userProfileRepository),
         taskRepositoryProvider.overrideWithValue(taskRepository),
         dayLogRepositoryProvider.overrideWithValue(dayLogRepository),
+        stepSensorRepositoryProvider.overrideWithValue(stepSensorRepository),
       ],
       child: const GrowthStreakApp(),
     ),

@@ -5,14 +5,17 @@ import 'package:growthstreak/core/routing/app_router.dart';
 import 'package:growthstreak/core/theme/app_theme.dart';
 import 'package:growthstreak/features/auth/data/mock_auth_repository.dart';
 import 'package:growthstreak/features/auth/presentation/auth_controller.dart';
+import 'package:growthstreak/features/home/presentation/home_screen.dart';
 import 'package:growthstreak/features/onboarding/data/mock_user_profile_repository.dart';
+import 'package:growthstreak/features/steps/data/mock_step_sensor_repository.dart';
+import 'package:growthstreak/features/steps/presentation/step_tracker_notifier.dart';
 import 'package:growthstreak/features/tasks/data/mock_day_log_repository.dart';
 import 'package:growthstreak/features/tasks/data/mock_task_repository.dart';
 import 'package:growthstreak/features/tasks/presentation/today_tasks_notifier.dart';
 
 void main() {
   testWidgets(
-      'Full End-to-End Flow: Sign In -> Onboarding -> Home Hero Ring & Task Toggles',
+      'Full End-to-End Flow: Auth -> Onboarding -> Home -> Step Sensor Tracking & Auto-Completion',
       (WidgetTester tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 1.0;
@@ -25,6 +28,8 @@ void main() {
     final mockProfiles = MockUserProfileRepository();
     final mockTasks = MockTaskRepository();
     final mockDayLogs = MockDayLogRepository();
+    final mockStepSensor =
+        MockStepSensorRepository(initialPermissionGranted: true);
 
     await tester.pumpWidget(
       ProviderScope(
@@ -33,9 +38,12 @@ void main() {
           userProfileRepositoryProvider.overrideWithValue(mockProfiles),
           taskRepositoryProvider.overrideWithValue(mockTasks),
           dayLogRepositoryProvider.overrideWithValue(mockDayLogs),
+          stepSensorRepositoryProvider.overrideWithValue(mockStepSensor),
         ],
         child: Consumer(
           builder: (context, ref, _) {
+            // Eagerly watch step tracker
+            ref.watch(stepTrackerNotifierProvider);
             final router = ref.watch(routerProvider);
             return MaterialApp.router(
               theme: AppTheme.lightTheme,
@@ -64,45 +72,46 @@ void main() {
     // 4. Lands on Home Screen
     expect(find.text('Alex Rivers'), findsOneWidget);
     expect(find.text("Today's Tasks"), findsOneWidget);
+    expect(find.text('Hardware Step Counter'), findsOneWidget);
+    expect(find.text('0 / 8,000 steps'), findsOneWidget);
+
+    // 5. Create a Daily Steps task (weight 2)
+    final todayWeekday = DateTime.now().weekday;
+    final element = tester.element(find.byType(HomeScreen));
+    final container = ProviderScope.containerOf(element);
+
+    await container.read(todayTasksNotifierProvider.notifier).createTask(
+          title: 'Daily Steps',
+          category: 'Health',
+          weight: 2,
+          type: 'steps_auto',
+          repeatDays: [todayWeekday],
+        );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Daily Steps'), findsOneWidget);
+    expect(find.text('0/2 wt'), findsOneWidget);
     expect(find.text('0%'), findsOneWidget);
-    expect(find.text('0/0 wt'), findsOneWidget);
 
-    // 5. Tap Add Task button
-    await tester.tap(find.byKey(const Key('add_task_header_button')));
+    // 6. Simulate hardware step sensor events
+    // Event 1 establishes baseline
+    mockStepSensor.emitSteps(1000);
+    await tester.pump(const Duration(milliseconds: 20));
+
+    // Event 2 emits 9000 steps (9000 - 1000 = 8000 steps taken today -> goal reached!)
+    mockStepSensor.emitSteps(9000);
     await tester.pumpAndSettle();
 
-    // Verify modal bottom sheet opened
-    expect(find.text('Create Daily Task'), findsOneWidget);
+    // 7. Verify step counter updated to 8,000 / 8,000 steps
+    expect(find.text('8,000 / 8,000 steps'), findsOneWidget);
+    expect(find.text('Goal Met!'), findsOneWidget);
 
-    // Enter title: "Gym Workout"
-    await tester.enterText(
-        find.byKey(const Key('task_title_input')), 'Gym Workout');
-    await tester.tap(find.byKey(const Key('save_task_button')));
-    await tester.pumpAndSettle();
-
-    // 6. Verify task created and displayed in Today's Tasks
-    expect(find.text('Gym Workout'), findsOneWidget);
-    expect(find.text('0/1 wt'), findsOneWidget);
-    expect(find.text('0%'), findsOneWidget);
-
-    // 7. Toggle Gym Workout checkbox
-    final checkboxFinder = find.byType(Checkbox).first;
-    await tester.tap(checkboxFinder);
-    await tester.pumpAndSettle();
-
-    // 8. Dynamic Hero Ring updates to 100% (1/1 wt)
-    expect(find.text('1/1 wt'), findsOneWidget);
+    // 8. Verify the Daily Steps task automatically completed and hero ring updated to 100%!
+    expect(find.text('2/2 wt'), findsOneWidget);
     expect(find.text('100%'), findsOneWidget);
     expect(find.text('Streak Secured!'), findsOneWidget);
 
-    // 9. Untoggle checkbox
-    await tester.tap(checkboxFinder);
-    await tester.pumpAndSettle();
-
-    expect(find.text('0/1 wt'), findsOneWidget);
-    expect(find.text('0%'), findsOneWidget);
-
-    // 10. Tap Sign Out
+    // 9. Sign Out
     await tester.scrollUntilVisible(
         find.byKey(const Key('sign_out_button')), 200);
     await tester.tap(find.byKey(const Key('sign_out_button')));
